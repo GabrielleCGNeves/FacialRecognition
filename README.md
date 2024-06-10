@@ -43,3 +43,12 @@ O <b>AttendAI</b> é um projeto desenvolvido para a aula de aprendizado de máqu
           
 
 <h3>Como Utilizar</h3>
+
+- Tenha o Python instalado em sua máquina
+- Clone o repositório
+
+**API**:
+Para executar a API, acesse a pasta `facial-api` e execute o seguinte comando:
+```bash
+flask --app api/routes.py --debug run -h 0.0.0.0
+```
