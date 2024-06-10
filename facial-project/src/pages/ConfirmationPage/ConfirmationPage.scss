@@ -14,15 +14,27 @@
 }
 
 .profile-pic {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%;
+}
+
+.profile-pic-wrapper {
     width: 150px;
     height: 150px;
     border-radius: 50%;
     margin: 1rem 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden
 }
 
 .buttons {
     display: flex;
     gap: 1rem;
+    margin-top: 1rem;
 }
 
 .yes-button, .no-button {

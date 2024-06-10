@@ -1,15 +1,14 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import './CameraPage.scss';
-import Container from '../../components/Container';
 import Camera from '../../components/Camera';
+import Container from '../../components/Container';
+import './CameraPage.scss';
 
 const CameraPage: React.FC = () => {
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
-    const handleStartClick = () => {
-        navigate('/confirmation');
-    };
+    // const handleStartClick = () => {
+    //     navigate('/confirmation');
+    // };
     return (
         <Container>
             <div className="camera-page">
@@ -17,7 +16,9 @@ const CameraPage: React.FC = () => {
                 <p>clique no botão</p>
                 {/* <div className="camera-frame"></div>
                 <button onClick={handleStartClick} className="capture-button">Capturar</button> */}
-                <Camera />
+                <div className="camera-frame">
+                    <Camera />
+                </div>
             </div>
         </Container>
     );

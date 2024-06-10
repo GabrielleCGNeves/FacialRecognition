@@ -7,7 +7,7 @@ const ErrorPage: React.FC = () => {
     const navigate = useNavigate();
 
     const handleStartClick = () => {
-        navigate('/');
+        navigate('/camera');
     };
 
     return (
