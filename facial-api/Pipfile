@@ -5,6 +5,9 @@ name = "pypi"
 
 [packages]
 flask = "*"
+numpy = "*"
+opencv-python = "*"
+pillow = "*"
 
 [dev-packages]
 
