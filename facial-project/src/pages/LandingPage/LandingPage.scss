@@ -1,0 +1,31 @@
+@use "../../variables" as v;
+
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: v.$text-color;
+}
+
+.header {
+    h1 {
+        font-size: 2.5rem;
+        margin: 0;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+.start-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: v.$accent-color;
+    color: v.$text-color;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

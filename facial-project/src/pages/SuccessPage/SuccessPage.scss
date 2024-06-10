@@ -1,0 +1,25 @@
+@use "../../variables" as v;
+
+.success-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: v.$text-color;
+}
+
+.success-page p, h1{
+    margin: 0;
+}
+
+.back-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: v.$accent-color;
+    color: v.$text-color;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

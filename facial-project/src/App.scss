@@ -1,0 +1,15 @@
+#root {
+  text-align: center;
+}
+
+body {
+  background: 
+    radial-gradient(farthest-side at -33.33% 50%,#0000 52%,#006261 54% 57%,#0000 59%) 0 calc(104px/2),
+    radial-gradient(farthest-side at 50% 133.33%,#0000 52%,#006261 54% 57%,#0000 59%) calc(104px/2) 0,
+    radial-gradient(farthest-side at 133.33% 50%,#0000 52%,#006261 54% 57%,#0000 59%),
+    radial-gradient(farthest-side at 50% -33.33%,#0000 52%,#006261 54% 57%,#0000 59%),
+  #004648;
+  background-size: calc(104px/4.667) 104px,104px calc(104px/4.667);
+}
+
+

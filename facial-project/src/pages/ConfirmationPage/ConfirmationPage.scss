@@ -1,0 +1,45 @@
+@use "../../variables" as v;
+
+.confirmation-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: v.$text-color;
+}
+
+.confirmation-page h1, h2 {
+    margin: 0;
+}
+
+.profile-pic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    margin: 1rem 0;
+}
+
+.buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.yes-button, .no-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.yes-button {
+    background-color: #42BF5E;
+    color: v.$text-color;
+}
+
+.no-button {
+    background-color: #C52E35;
+    color: v.$text-color;
+}

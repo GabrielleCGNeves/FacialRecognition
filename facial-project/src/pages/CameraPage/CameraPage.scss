@@ -1,0 +1,26 @@
+@use "../../variables" as v;
+
+.camera-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: v.$text-color;
+}
+
+.camera-page p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.camera-frame {
+    width: 300px;
+    height: 300px;
+    border: 5px solid #000;
+    margin-top: 20px;
+    border-radius: 1rem;
+    background-color: #000;
+    margin-bottom: 1rem;
+}

@@ -1,0 +1,12 @@
+@use '../variables' as v;
+
+.capture-button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: v.$accent-color;
+    color: v.$text-color;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
