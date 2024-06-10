@@ -1,0 +1,5 @@
+Flask==3.0.3
+flask_sqlalchemy==3.1.1
+numpy==1.26.4
+opencv_contrib_python==4.10.0.82
+Pillow==10.3.0
