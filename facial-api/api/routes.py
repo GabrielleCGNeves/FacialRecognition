@@ -12,6 +12,9 @@ from datetime import datetime
 UPLOAD_FOLDER = os.path.abspath("api/upload/")
 IMAGES_FOLDER = os.path.abspath("./api/images")
 
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 db = SQLAlchemy()
 
 app = Flask(__name__)
@@ -129,9 +132,10 @@ def upload_file():
     if data.get("encodedPicture") is None:
         return jsonify({"message": "Não foi possível encontrar o arquivo."}), 400
 
-    picture = data["encodedPicture"]
+    picture = data["encodedPicture"].split(",")[1]
 
     image_path = os.path.join(app.config["UPLOAD_FOLDER"], "student.jpg")
+
     # Decodifica a imagem Base64 e a redimensiona para 320x243
     image_data = base64.b64decode(picture)
     image = Image.open(BytesIO(image_data))
@@ -190,6 +194,12 @@ def upload_file():
             name = "Desconhecido"
             last_attendance_date = None
 
+            # Codifica a imagem em uma variável
+        with open(
+            os.path.join(app.config["UPLOAD_FOLDER"], "student.jpg"), "rb"
+        ) as image_file:
+            encoded_string = base64.b64encode(image_file.read())
+
         return (
             jsonify(
                 {
@@ -198,12 +208,15 @@ def upload_file():
                     "name": name,
                     "confidence": confidence,
                     "last_attendance": last_attendance_date,
+                    "encodedPicture": "data:image/jpeg;base64,"
+                    + encoded_string.decode("utf-8"),
                 }
             ),
             201,
         )
     else:
         return jsonify({"message": "Nenhuma face detectada."}), 400
+
 
 @app.route("/attendance", methods=["POST"])
 def record_attendance():
@@ -220,6 +233,7 @@ def record_attendance():
     db.session.commit()
 
     return jsonify({"message": "Presença registrada com sucesso."}), 201
+
 
 if __name__ == "__main__":
     app.run(port=5000)
