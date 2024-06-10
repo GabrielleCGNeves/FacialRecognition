@@ -5,12 +5,56 @@ import os
 import cv2
 import numpy as np
 from PIL import Image, ImageOps
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
-UPLOAD_FOLDER = os.path.abspath('api/upload/')
-IMAGES_FOLDER = os.path.abspath('./api/images')
+UPLOAD_FOLDER = os.path.abspath("api/upload/")
+IMAGES_FOLDER = os.path.abspath("./api/images")
+
+db = SQLAlchemy()
 
 app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attendance.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db.init_app(app)
+
+
+# Tabela de presença
+# Modelo de Presença
+class Attendance(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.Integer, db.ForeignKey("student.label"), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# Modelo de Aluno
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    label = db.Column(db.Integer, unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    attendances = db.relationship("Attendance", backref="student", lazy=True)
+
+
+# Inicializar o banco de dados
+with app.app_context():
+    print("Inicializando banco de dados...")
+    db.create_all()
+
+    # Adicionar registros prévios, se não existirem
+    if Student.query.count() == 0:
+        print("Adicionando registros prévios na tabela Student...")
+        students = [
+            Student(label=2008, name="ERICK SANTOS SOUSA"),
+            Student(label=2013, name="GEOVANNA GABRIELLE"),
+            Student(label=2026, name="GABRIELLE C G NEVES"),
+        ]
+        db.session.bulk_save_objects(students)
+        db.session.commit()
+        print("Registros adicionados com sucesso.")
+    else:
+        print("Registros já existem na tabela Student.")
 
 
 def detecta_face(network, path_imagem, conf_min=0.7):
@@ -39,13 +83,13 @@ def detecta_face(network, path_imagem, conf_min=0.7):
 
 def get_image_data():
     network = cv2.dnn.readNetFromCaffe(
-        os.path.abspath('./api/content/deploy.prototxt.txt'),
-        os.path.abspath('./api/content/res10_300x300_ssd_iter_140000.caffemodel'),
+        os.path.abspath("./api/content/deploy.prototxt.txt"),
+        os.path.abspath("./api/content/res10_300x300_ssd_iter_140000.caffemodel"),
     )
     paths = [
         os.path.join(IMAGES_FOLDER, f)
         for f in os.listdir(IMAGES_FOLDER)
-        if f.endswith('.jpg')
+        if f.endswith(".jpg")
     ]
     faces = []
     ids = []
@@ -53,39 +97,39 @@ def get_image_data():
         face, imagem = detecta_face(network, path)
         if face is not None:
             # Assumindo que o nome do arquivo contém o ID do indivíduo
-            id = int(os.path.split(path)[1].split('.')[0].replace('ra', ''))
+            id = int(os.path.split(path)[1].split(".")[0].replace("ra", ""))
             ids.append(id)
             faces.append(face)
     return np.array(ids), faces
 
 
-@app.route('/train', methods=['POST'])
+@app.route("/train", methods=["POST"])
 def train_classifier():
     ids, faces = get_image_data()
     if len(faces) > 0:
         eigen_classifier = cv2.face.EigenFaceRecognizer_create()
         eigen_classifier.train(faces, ids)
-        eigen_classifier.write(os.path.abspath('./api/content/gen_classifier.yml'))
-        return jsonify({'message': 'Classificador treinado com sucesso.'}), 201
+        eigen_classifier.write(os.path.abspath("./api/content/gen_classifier.yml"))
+        return jsonify({"message": "Classificador treinado com sucesso."}), 201
     else:
-        return jsonify({'message': 'Nenhuma face detectada para treinamento.'}), 400
+        return jsonify({"message": "Nenhuma face detectada para treinamento."}), 400
 
 
-@app.route('/upload', methods=['POST'])
+@app.route("/upload", methods=["POST"])
 def upload_file():
     network = cv2.dnn.readNetFromCaffe(
-        os.path.abspath('./api/content/deploy.prototxt.txt'),
-        os.path.abspath('./api/content/res10_300x300_ssd_iter_140000.caffemodel'),
+        os.path.abspath("./api/content/deploy.prototxt.txt"),
+        os.path.abspath("./api/content/res10_300x300_ssd_iter_140000.caffemodel"),
     )
 
     data = request.get_json(force=True)
 
-    if data.get('encodedPicture') is None:
-        return jsonify({'message': 'Não foi possível encontrar o arquivo.'}), 400
+    if data.get("encodedPicture") is None:
+        return jsonify({"message": "Não foi possível encontrar o arquivo."}), 400
 
-    picture = data['encodedPicture']
+    picture = data["encodedPicture"]
 
-    image_path = os.path.join(app.config['UPLOAD_FOLDER'], 'student.jpg')
+    image_path = os.path.join(app.config["UPLOAD_FOLDER"], "student.jpg")
     # Decodifica a imagem Base64 e a redimensiona para 320x243
     image_data = base64.b64decode(picture)
     image = Image.open(BytesIO(image_data))
@@ -116,7 +160,7 @@ def upload_file():
 
     if face is not None:
         # Salvar a face detectada
-        face_path = os.path.join(app.config['UPLOAD_FOLDER'], 'face.jpg')
+        face_path = os.path.join(app.config["UPLOAD_FOLDER"], "face.jpg")
         cv2.imwrite(face_path, face)
 
         # Carregar o classificador treinado
@@ -126,19 +170,54 @@ def upload_file():
         # Classificar a face
         label, confidence = eigen_classifier.predict(face)
 
+        # Buscar o nome do aluno pelo label
+        student = Student.query.filter_by(label=label).first()
+
+        if student:
+            name = student.name
+            # Buscar a última presença
+            last_attendance = (
+                Attendance.query.filter_by(label=label)
+                .order_by(Attendance.timestamp.desc())
+                .first()
+            )
+            last_attendance_date = (
+                last_attendance.timestamp if last_attendance else None
+            )
+        else:
+            name = "Desconhecido"
+            last_attendance_date = None
+
         return (
             jsonify(
                 {
-                    'message': 'Face detectada e classificada com sucesso.',
-                    'label': label,
-                    'confidence': confidence,
+                    "message": "Face detectada e classificada com sucesso.",
+                    "label": label,
+                    "name": name,
+                    "confidence": confidence,
+                    "last_attendance": last_attendance_date,
                 }
             ),
             201,
         )
     else:
-        return jsonify({'message': 'Nenhuma face detectada.'}), 400
+        return jsonify({"message": "Nenhuma face detectada."}), 400
 
+@app.route("/attendance", methods=["POST"])
+def record_attendance():
+    data = request.get_json(force=True)
 
-if __name__ == '__main__':
+    if "label" not in data:
+        return jsonify({"message": "Label não fornecido."}), 400
+
+    label = data["label"]
+
+    # Registrar presença no banco de dados
+    attendance = Attendance(label=label)
+    db.session.add(attendance)
+    db.session.commit()
+
+    return jsonify({"message": "Presença registrada com sucesso."}), 201
+
+if __name__ == "__main__":
     app.run(port=5000)
