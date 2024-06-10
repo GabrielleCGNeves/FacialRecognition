@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageOps
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from datetime import datetime
 
 UPLOAD_FOLDER = os.path.abspath("api/upload/")
@@ -14,6 +15,7 @@ IMAGES_FOLDER = os.path.abspath("./api/images")
 db = SQLAlchemy()
 
 app = Flask(__name__)
+CORS(app)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///attendance.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
